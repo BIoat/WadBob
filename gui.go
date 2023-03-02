@@ -11,9 +11,12 @@ import (
 	"time"
 	"unsafe"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/hako/durafmt"
 )
@@ -64,10 +67,13 @@ func updateTime(timer *widget.Label) {
 	}
 }
 
-func loadgui() {
+func login(a fyne.App) fyne.Window {
+	// md := getnews()
 	url := "https://wadbot.lol/WadBot/check.php"
-	a := app.New()
 	w := a.NewWindow("WadBot Utilities")
+
+	// news := widget.NewRichTextFromMarkdown(md)
+	// news.Wrapping = fyne.TextWrapWord
 	l2 := canvas.NewText("WadBot Utilities",
 		color.RGBA{R: 247, G: 173, B: 0, A: 230})
 	l2.TextSize = 26
@@ -88,7 +94,7 @@ func loadgui() {
 		} else {
 			body, _ := ioutil.ReadAll(resp.Body)
 			ver, expire = stripRegex(string(body))
-      //placeholder
+			// placeholder
 			l.Text = "[7.4] Time left: " + sectotime(expire)
 			l.Refresh()
 
@@ -101,12 +107,74 @@ func loadgui() {
 			updateTime(l)
 		}
 	}()
+
 	w.SetContent(container.NewVBox(l2, in, l, btn))
-	w.ShowAndRun()
+	w.CenterOnScreen()
+	return w
+}
+
+func loadgui() {
+	a := app.NewWithID("WadBob")
+	fyne.CurrentApp().SetIcon(resourceIconIco)
+	a.Settings().SetTheme(theme.DarkTheme())
+	loginwin := login(a)
+	if drv, ok := fyne.CurrentApp().Driver().(desktop.Driver); ok {
+		go playtune(resourceTuneMp3.Content())
+		w := drv.CreateSplashWindow()
+		w.SetTitle("WadBob")
+		img := canvas.NewImageFromResource(resourceSplashJpg)
+		img.FillMode = canvas.ImageFillOriginal
+		img.ScaleMode = canvas.ImageScaleFastest
+		startbutton := widget.NewButtonWithIcon("START", resourceIconIco, func() {
+			w.CenterOnScreen()
+			go stoptune()
+			w.Close()
+
+			// w.Canvas().Refresh(img)
+		})
+		aboutbutton := widget.NewButtonWithIcon("ABOUT", resourceIconIco, func() {
+			w.CenterOnScreen()
+			go stoptune()
+			w.Close()
+		})
+		closebutton := widget.NewButtonWithIcon("EXIT", resourceIconIco, func() {
+			go stoptune()
+			a.Quit()
+		})
+		startbutton.Alignment = widget.ButtonAlignLeading
+		startbutton.Move(fyne.NewPos(50, 50))
+
+		w.SetContent(
+			container.NewVBox(
+				img,
+				container.NewCenter(
+					container.NewHBox(
+						startbutton,
+						aboutbutton,
+						closebutton,
+					),
+				),
+			),
+		)
+		w.SetOnClosed(func() {
+			loginwin.Show()
+		})
+
+		go func() {
+			for i := 1; i <= 75; i++ {
+				time.Sleep(time.Millisecond)
+				w.CenterOnScreen()
+			}
+		}()
+		w.ShowAndRun()
+		w.CenterOnScreen()
+	}
 
 	tidyUp()
 }
 
 func tidyUp() {
+	stoptune()
+
 	fmt.Println("GUI exit")
 }

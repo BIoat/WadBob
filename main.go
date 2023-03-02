@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
+	// "time"
 )
 
 func file_exists(path string) bool {
@@ -32,16 +32,16 @@ func confirm(s string, tries int) bool {
 }
 
 func main() {
-  loadgui()
-
-	name := confirm("Check if LoL Config exists?", 3)
-	if name {
-    //placeholder
-		r := file_exists("C:/Riot Games/League of Legends/Config/PersistedSettings.json")
-		println(r)
-		time.Sleep(time.Second)
-	}
-
-	println("quit")
-	os.Exit(0)
+	loadgui()
+	//
+	// name := confirm("Check if LoL Config exists?", 3)
+	// if name {
+	// 	// placeholder
+	// 	r := file_exists("C:/Riot Games/League of Legends/Config/PersistedSettings.json")
+	// 	println(r)
+	// 	time.Sleep(time.Second)
+	// }
+	//
+	// println("quit")
+	// os.Exit(0)
 }
