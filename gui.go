@@ -119,7 +119,6 @@ func loadgui() {
 	a.Settings().SetTheme(theme.DarkTheme())
 	loginwin := login(a)
 	if drv, ok := fyne.CurrentApp().Driver().(desktop.Driver); ok {
-		go playtune(resourceTuneMp3.Content())
 		w := drv.CreateSplashWindow()
 		w.SetTitle("WadBob")
 		img := canvas.NewImageFromResource(resourceSplashJpg)
@@ -132,13 +131,12 @@ func loadgui() {
 
 			// w.Canvas().Refresh(img)
 		})
-		aboutbutton := widget.NewButtonWithIcon("ABOUT", resourceIconIco, func() {
+		aboutbutton := widget.NewButton("ABOUT", func() {
 			w.CenterOnScreen()
 			go stoptune()
 			w.Close()
 		})
-		closebutton := widget.NewButtonWithIcon("EXIT", resourceIconIco, func() {
-			go stoptune()
+		closebutton := widget.NewButton("EXIT",func() {
 			a.Quit()
 		})
 		startbutton.Alignment = widget.ButtonAlignLeading
@@ -147,12 +145,10 @@ func loadgui() {
 		w.SetContent(
 			container.NewVBox(
 				img,
-				container.NewCenter(
-					container.NewHBox(
+				container.NewHBox(
 						startbutton,
 						aboutbutton,
 						closebutton,
-					),
 				),
 			),
 		)

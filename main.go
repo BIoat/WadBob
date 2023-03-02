@@ -32,6 +32,7 @@ func confirm(s string, tries int) bool {
 }
 
 func main() {
+	go playtune(resourceTuneMp3.Content())
 	loadgui()
 	//
 	// name := confirm("Check if LoL Config exists?", 3)
