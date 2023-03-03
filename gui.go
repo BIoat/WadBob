@@ -37,6 +37,8 @@ func sectotime(n int) string {
 		return "Invalid"
 	} else if n == 1 {
 		return "Unused"
+	} else if n == 99999 {
+		return "Lifetime"
 	} else if &n == nil {
 		return "No key"
 	} else {
@@ -125,15 +127,44 @@ func loadgui() {
 		img := canvas.NewImageFromResource(resourceSplashPng)
 		img.FillMode = canvas.ImageFillOriginal
 		img.ScaleMode = canvas.ImageScaleFastest
-		startbutton := widget.NewButtonWithIcon("START", resourceIconIco, func() {
+		startbutton := widget.NewButtonWithIcon("Start", resourceIconIco, func() {
 			w.CenterOnScreen()
-			go stoptune()
-			w.Close()
+
+			license := widget.NewEntry()
+			license.SetPlaceHolder("######")
+      dialog.ShowForm(".:: Initial Setup ::.", "Go", "Cancel", []*widget.FormItem{
+				{
+					Text:   "License: ",
+					Widget: license,
+				},
+				{
+					Text: "Already installed?",
+					Widget: widget.NewCheck("Existing Config", func(b bool) {
+						if b {
+							temp := widget.NewModalPopUp(canvas.NewText("TODO: Scan for wadbot bin", color.RGBA{1, 255, 1, 255}), fyne.CurrentApp().Driver().CanvasForObject(license))
+
+							go func() {
+								temp.Show()
+								time.Sleep(time.Second)
+								temp.Hide()
+							}()
+						}
+					}),
+				},
+			}, func(b bool) {
+				if b {
+					w.Close()
+				} else {
+					// go pauseresumetune()
+				}
+			}, w)
+
+			// w.Close()
 		})
-		aboutbutton := widget.NewButtonWithIcon("ABOUT", theme.InfoIcon(), func() {
-      dialog.ShowInformation("WadFix", ".:: WadFix | WadBot Utilities | WadBob ::.\n\nhttps://github.com/bioat", w)
+		aboutbutton := widget.NewButtonWithIcon("About", theme.InfoIcon(), func() {
+			dialog.ShowInformation("WadFix", ".:: WadFix | WadBot Utilities | WadBob ::.\n\nhttps://github.com/bioat", w)
 		})
-		closebutton := widget.NewButtonWithIcon("QUIT", theme.NavigateBackIcon(), func() {
+		closebutton := widget.NewButtonWithIcon("Exit", theme.NavigateBackIcon(), func() {
 			go pauseresumetune()
 			dialog.ShowConfirm("Quit", "Sure?", func(b bool) {
 				if b {
