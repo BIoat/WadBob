@@ -153,9 +153,11 @@ func loadgui() {
 				},
 			}, func(b bool) {
 				if b {
+
+					go pauseresumetune()
 					w.Close()
 				} else {
-					// go pauseresumetune()
+          //todo
 				}
 			}, w)
 
