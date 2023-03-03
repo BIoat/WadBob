@@ -15,6 +15,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -114,30 +115,33 @@ func login(a fyne.App) fyne.Window {
 }
 
 func loadgui() {
-	a := app.NewWithID("WadBob")
+	a := app.NewWithID("WadFix")
 	fyne.CurrentApp().SetIcon(resourceIconIco)
 	a.Settings().SetTheme(theme.DarkTheme())
 	loginwin := login(a)
 	if drv, ok := fyne.CurrentApp().Driver().(desktop.Driver); ok {
 		w := drv.CreateSplashWindow()
-		w.SetTitle("WadBob")
-		img := canvas.NewImageFromResource(resourceSplashJpg)
+		w.SetTitle("WadFix")
+		img := canvas.NewImageFromResource(resourceSplashPng)
 		img.FillMode = canvas.ImageFillOriginal
 		img.ScaleMode = canvas.ImageScaleFastest
 		startbutton := widget.NewButtonWithIcon("START", resourceIconIco, func() {
 			w.CenterOnScreen()
 			go stoptune()
 			w.Close()
-
-			// w.Canvas().Refresh(img)
 		})
-		aboutbutton := widget.NewButton("ABOUT", func() {
-			w.CenterOnScreen()
-			go stoptune()
-			w.Close()
+		aboutbutton := widget.NewButtonWithIcon("ABOUT", theme.InfoIcon(), func() {
+      dialog.ShowInformation("WadFix", ".:: WadFix | WadBot Utilities | WadBob ::.\n\nhttps://github.com/bioat", w)
 		})
-		closebutton := widget.NewButton("EXIT",func() {
-			a.Quit()
+		closebutton := widget.NewButtonWithIcon("QUIT", theme.NavigateBackIcon(), func() {
+			go pauseresumetune()
+			dialog.ShowConfirm("Quit", "Sure?", func(b bool) {
+				if b {
+					a.Quit()
+				} else {
+					go pauseresumetune()
+				}
+			}, w)
 		})
 		startbutton.Alignment = widget.ButtonAlignLeading
 		startbutton.Move(fyne.NewPos(50, 50))
@@ -146,9 +150,9 @@ func loadgui() {
 			container.NewVBox(
 				img,
 				container.NewHBox(
-						startbutton,
-						aboutbutton,
-						closebutton,
+					startbutton,
+					aboutbutton,
+					closebutton,
 				),
 			),
 		)
