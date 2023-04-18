@@ -6,43 +6,37 @@ import (
 	"log"
 	"os"
 	"strings"
-	// "time"
 )
 
-func file_exists(path string) bool {
-	f, _ := os.ReadFile(path)
-	return f != nil
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }
 
-func confirm(s string, tries int) bool {
-	r := bufio.NewReader(os.Stdin)
-	for ; tries > 0; tries-- {
-		fmt.Printf("%s [y/n]: ", s)
-		res, err := r.ReadString('\n')
+func confirm(prompt string, tries int) bool {
+	reader := bufio.NewReader(os.Stdin)
+
+	for tries > 0 {
+		fmt.Printf("%s [y/n]: ", prompt)
+		response, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
-		// Empty input (i.e. "\n")
-		if len(res) < 2 {
+
+		response = strings.ToLower(strings.TrimSpace(response))
+
+		if len(response) == 0 {
+			tries--
 			continue
 		}
-		return strings.ToLower(strings.TrimSpace(res))[0] == 'y'
+
+		return response[0] == 'y'
 	}
+
 	return false
 }
 
 func main() {
-	go playtune(resourceTuneMp3.Content())
+	playtune(resourceTuneMp3.Content())
 	loadgui()
-	//
-	// name := confirm("Check if LoL Config exists?", 3)
-	// if name {
-	// 	// placeholder
-	// 	r := file_exists("C:/Riot Games/League of Legends/Config/PersistedSettings.json")
-	// 	println(r)
-	// 	time.Sleep(time.Second)
-	// }
-	//
-	// println("quit")
-	// os.Exit(0)
 }
